@@ -3,224 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organizador Semanal</title>
+  <title>My Semana</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f0f0f0;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      background-color: #fff;
-      padding: 20px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 36px;
-      color: #007bff;
-    }
-
-    .week-info {
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 18px;
-      color: #6c757d;
-    }
-
-    .d-flex {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-
-    .day-column {
-      flex: 1;
-      min-width: 150px;
-      padding: 10px;
-      margin: 10px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      border: 1px solid #ddd;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      position: relative;
-    }
-
-    .day-column:hover {
-      background-color: #e9ecef;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .day-header {
-      text-align: center;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #343a40;
-      font-size: 20px;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 5px;
-    }
-
-    .task-container {
-      min-height: 50px;
-    }
-
-    .task {
-      background-color: #007bff;
-      color: #fff;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: center;
-      transition: background-color 0.3s ease, transform 0.3s ease, text-decoration 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      position: relative;
-    }
-
-    .task.completed {
-      text-decoration: line-through;
-      background-color: #6c757d;
-    }
-
-    .task:hover {
-      background-color: #0056b3;
-      transform: scale(1.05);
-    }
-
-    .delete-btn {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      color: #fff;
-      background-color: rgba(0, 0, 0, 0.5);
-      border: none;
-      padding: 5px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .delete-btn:hover {
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    .modal-content {
-      padding: 20px;
-      border-radius: 8px;
-    }
-
-    .modal-header {
-      border-bottom: none;
-    }
-
-    .modal-footer {
-      border-top: none;
-    }
-
-    #calendarBtn {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    #calendarBtn:hover {
-      background-color: #0056b3;
-      transform: scale(1.05);
-    }
-
-    #modeSelect {
-      margin-bottom: 20px;
-    }
+    body { font-family: 'Roboto', sans-serif; background-color: #f0f0f0; margin: 0; padding: 20px; }
+    .container { max-width: 1200px; margin: auto; background-color: #fff; padding: 20px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); border-radius: 12px; }
+    h1 { text-align: center; margin-bottom: 20px; font-size: 36px; color: #007bff; }
+    .week-info { text-align: center; margin-bottom: 10px; font-size: 18px; color: #6c757d; }
+    .d-flex { display: flex; justify-content: space-between; flex-wrap: wrap; }
+    .day-column { flex: 1; min-width: 150px; padding: 10px; margin: 10px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); border: 1px solid #ddd; transition: 0.3s; }
+    .day-column:hover { background-color: #e9ecef; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+    .highlight-today { border: 2px solid #e6c12f; background-color: #ffcdcd; }
+    .day-header { text-align: center; font-weight: 700; margin-bottom: 10px; color: #343a40; font-size: 20px; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+    .task { background-color: #007bff; color: #fff; padding: 10px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; text-align: center; transition: 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative; }
+    .task.completed { text-decoration: line-through; background-color: #6c757d; }
+    .task:hover { background-color: #0056b3; transform: scale(1.05); }
+    .delete-btn { position: absolute; top: 5px; right: 5px; color: #fff; background-color: rgba(0, 0, 0, 0.5); border: none; padding: 5px; border-radius: 50%; cursor: pointer; transition: 0.3s; display: none; }
+    .delete-btn:hover { background-color: rgba(0, 0, 0, 0.8); }
+    #calendarBtn { background-color: #007bff; color: #fff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    #calendarBtn:hover { background-color: #0056b3; transform: scale(1.05); }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Organizador Semanal</h1>
-  <div class="week-info" id="weekInfoText">
-    Semana del 21 de junio al 27 de junio
-  </div>
-
-  <div id="modeSelect" class="text-center">
+  <h1>My Semana</h1>
+  <div class="week-info" id="weekInfoText">Semana del 21 de junio al 27 de junio</div>
+  <div id="modeSelect" class="text-center mb-3">
     <label for="mode">Modo:</label>
     <select id="mode">
       <option value="view">Visualizar</option>
       <option value="edit">Editar</option>
     </select>
   </div>
-
   <div class="d-flex">
-    <div id="monday" class="day-column">
-      <div class="day-header">Lunes</div>
-      <div class="task-container"></div>
-    </div>
-    <div id="tuesday" class="day-column">
-      <div class="day-header">Martes</div>
-      <div class="task-container"></div>
-    </div>
-    <div id="wednesday" class="day-column">
-      <div class="day-header">Miércoles</div>
-      <div class="task-container"></div>
-    </div>
-    <div id="thursday" class="day-column">
-      <div class="day-header">Jueves</div>
-      <div class="task-container"></div>
-    </div>
-    <div id="friday" class="day-column">
-      <div class="day-header">Viernes</div>
-      <div class="task-container"></div>
-    </div>
-    <div id="saturday" class="day-column">
-      <div class="day-header">Sábado</div>
-      <div class="task-container"></div>
-    </div>
-    <div id="sunday" class="day-column">
-      <div class="day-header">Domingo</div>
-      <div class="task-container"></div>
-    </div>
+    <div id="monday" class="day-column"><div class="day-header">Lunes</div><div class="task-container"></div></div>
+    <div id="tuesday" class="day-column"><div class="day-header">Martes</div><div class="task-container"></div></div>
+    <div id="wednesday" class="day-column"><div class="day-header">Miércoles</div><div class="task-container"></div></div>
+    <div id="thursday" class="day-column"><div class="day-header">Jueves</div><div class="task-container"></div></div>
+    <div id="friday" class="day-column"><div class="day-header">Viernes</div><div class="task-container"></div></div>
+    <div id="saturday" class="day-column"><div class="day-header">Sábado</div><div class="task-container"></div></div>
+    <div id="sunday" class="day-column"><div class="day-header">Domingo</div><div class="task-container"></div></div>
   </div>
 </div>
 
-<!-- Modal para agregar tarea -->
 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addTaskModalLabel">Agregar Nueva Tarea</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="taskInput" class="form-label">Nombre de la Tarea</label>
-          <input type="text" class="form-control" id="taskInput" placeholder="Ingrese el nombre de la tarea">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="saveTaskBtn">Guardar Tarea</button>
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header">
+    <h5 class="modal-title" id="addTaskModalLabel">Agregar Nueva Tarea</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div class="mb-3">
+        <label for="taskInput" class="form-label">Nombre de la Tarea</label>
+        <input type="text" class="form-control" id="taskInput" placeholder="Ingrese el nombre de la tarea">
       </div>
     </div>
-  </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="saveTaskBtn">Guardar Tarea</button>
+    </div>
+  </div></div>
 </div>
 
-<!-- Botón para seleccionar fecha -->
 <div class="text-center mb-3">
   <button type="button" id="calendarBtn">Seleccionar Fecha</button>
 </div>
@@ -229,174 +74,127 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    var calendarBtn = document.getElementById('calendarBtn');
-    var calendar = flatpickr(calendarBtn, {
+    const calendarBtn = document.getElementById('calendarBtn');
+    const calendar = flatpickr(calendarBtn, {
       dateFormat: 'd F Y',
       defaultDate: new Date(),
-      onClose: function(selectedDates, dateStr, instance) {
-        if (selectedDates.length > 0) {
+      onClose: function(selectedDates, dateStr) {
+        if (selectedDates.length) {
           updateWeekInfo(selectedDates[0]);
-          saveSelectedDate(dateStr);
+          localStorage.setItem('selectedDate', dateStr);
         }
       }
     });
 
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    const dayColumnMap = { 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday', 0: 'sunday' };
+
     function updateWeekInfo(selectedDate) {
-      var startDate = new Date(selectedDate);
-      var dayOfWeek = startDate.getDay();
-      var diffToMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1); // Calcula el offset para llegar al lunes
-      startDate.setDate(startDate.getDate() - diffToMonday); // Establece el lunes como inicio de semana
-      var endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 6);
+      const startDate = new Date(selectedDate), endDate = new Date(startDate);
+      startDate.setDate(startDate.getDate() - (startDate.getDay() || 7) + 1);
+      endDate.setDate(startDate.getDate() + 6);
 
-      var startDay = startDate.getDate();
-      var startMonth = startDate.toLocaleString('es', { month: 'long' });
-      var endDay = endDate.getDate();
-      var endMonth = endDate.toLocaleString('es', { month: 'long' });
-
-      var weekInfoText = 'Semana del ' + startDay + ' de ' + startMonth + ' al ' + endDay + ' de ' + endMonth;
+      const weekInfoText = ` Del ${startDate.getDate()} de ${startDate.toLocaleString('es', { month: 'long' })} al ${endDate.getDate()} de ${endDate.toLocaleString('es', { month: 'long' })}`;
       document.getElementById('weekInfoText').textContent = weekInfoText;
 
-      // Actualizar los días de la semana
-      var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      days.forEach(function(day, index) {
-        var dayDate = new Date(startDate);
-        dayDate.setDate(dayDate.getDate() + index);
-        var dayHeader = document.querySelector('#' + day + ' .day-header');
-        dayHeader.textContent = dayDate.toLocaleString('es', { weekday: 'long' });
+      days.forEach((day, i) => {
+        const dayDate = new Date(startDate);
+        dayDate.setDate(startDate.getDate() + i);
+        document.querySelector(`#${day} .day-header`).textContent = dayDate.toLocaleString('es', { weekday: 'long' });
       });
+
+      highlightToday();
     }
 
-    function saveSelectedDate(dateStr) {
-      localStorage.setItem('selectedDate', dateStr);
-    }
-
-    var savedDate = localStorage.getItem('selectedDate');
+    const savedDate = localStorage.getItem('selectedDate');
     if (savedDate) {
       calendar.setDate(savedDate);
       updateWeekInfo(new Date(savedDate));
     }
 
-    var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    days.forEach(function(day) {
-      var taskContainer = document.querySelector('#' + day + ' .task-container');
+    function highlightToday() {
+      const today = new Date();
+      const todayColumn = dayColumnMap[today.getDay()];
+      document.getElementById(todayColumn).classList.add('highlight-today');
+    }
 
+    days.forEach(day => {
+      const taskContainer = document.querySelector(`#${day} .task-container`);
       loadTasks(day);
 
-      taskContainer.addEventListener('click', function(e) {
+      taskContainer.addEventListener('dblclick', e => {  // Double click to toggle completion
         if (e.target.classList.contains('task')) {
-          if (document.getElementById('mode').value === 'edit') {
-            e.target.classList.toggle('completed');
-            saveTasksToLocalStorage(day);
-          }
+          e.target.classList.toggle('completed');
+          saveTasks(day);
         }
       });
 
-      document.getElementById(day).addEventListener('click', function(e) {
-        if (!e.target.closest('.task') && !e.target.closest('.day-header')) {
-          if (document.getElementById('mode').value === 'edit') {
-            var columnId = e.currentTarget.id;
-            var addTaskModal = new bootstrap.Modal(document.getElementById('addTaskModal'), {
-              keyboard: false
-            });
-            addTaskModal.show();
+      document.getElementById(day).addEventListener('click', e => {
+        if (!e.target.closest('.task, .day-header') && document.getElementById('mode').value === 'edit') {
+          const addTaskModal = new bootstrap.Modal(document.getElementById('addTaskModal'));
+          addTaskModal.show();
 
-            document.getElementById('saveTaskBtn').onclick = function() {
-              var taskInput = document.getElementById('taskInput').value.trim();
-              if (taskInput) {
-                var task = document.createElement('div');
-                task.classList.add('task');
-                task.textContent = taskInput;
+          document.getElementById('saveTaskBtn').onclick = () => {
+            const taskInput = document.getElementById('taskInput').value.trim();
+            if (taskInput) {
+              const task = document.createElement('div');
+              task.classList.add('task');
+              task.textContent = taskInput;
 
-                var deleteBtn = document.createElement('button');
-                deleteBtn.classList.add('delete-btn');
-                deleteBtn.innerHTML = '&times;';
-                deleteBtn.addEventListener('click', function(e) {
-                  e.stopPropagation();
-                  task.remove();
-                  saveTasksToLocalStorage(columnId);
-                });
-                task.appendChild(deleteBtn);
+              const deleteBtn = document.createElement('button');
+              deleteBtn.classList.add('delete-btn');
+              deleteBtn.innerHTML = '&times;';
+              deleteBtn.onclick = e => { e.stopPropagation(); task.remove(); saveTasks(day); };
+              task.appendChild(deleteBtn);
 
-                taskContainer.appendChild(task);
-                addTaskModal.hide();
-                document.getElementById('taskInput').value = '';
-
-                saveTasksToLocalStorage(columnId);
-              }
-            };
-          }
+              taskContainer.appendChild(task);
+              addTaskModal.hide();
+              document.getElementById('taskInput').value = '';
+              saveTasks(day);
+            }
+          };
         }
       });
     });
 
-    function loadTasks(columnId) {
-      var tasks = JSON.parse(localStorage.getItem(columnId)) || [];
-      var taskContainer = document.querySelector('#' + columnId + ' .task-container');
-      taskContainer.innerHTML = ''; // Limpiar el contenedor antes de agregar nuevas tareas
-      tasks.forEach(function(taskText) {
-        var task = document.createElement('div');
+    function loadTasks(day) {
+      const tasks = JSON.parse(localStorage.getItem(day)) || [];
+      const taskContainer = document.querySelector(`#${day} .task-container`);
+      taskContainer.innerHTML = '';
+      tasks.forEach(taskData => {
+        const task = document.createElement('div');
         task.classList.add('task');
-        task.textContent = taskText;
+        task.textContent = taskData.text;
+        if (taskData.completed) {
+          task.classList.add('completed');
+        }
 
-        var deleteBtn = document.createElement('button');
+        const deleteBtn = document.createElement('button');
         deleteBtn.classList.add('delete-btn');
         deleteBtn.innerHTML = '&times;';
-        deleteBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          task.remove();
-          saveTasksToLocalStorage(columnId);
-        });
+        deleteBtn.onclick = e => { e.stopPropagation(); task.remove(); saveTasks(day); };
         task.appendChild(deleteBtn);
 
         taskContainer.appendChild(task);
       });
     }
 
-    function saveTasksToLocalStorage(columnId) {
-      var tasks = [];
-      var taskElements = document.querySelectorAll('#' + columnId + ' .task-container .task');
-      for (var i = 0; i < taskElements.length; i++) {
-        tasks.push(taskElements[i].textContent.trim());
-      }
-      localStorage.setItem(columnId, JSON.stringify(tasks));
+    function saveTasks(day) {
+      const tasks = [...document.querySelectorAll(`#${day} .task`)].map(task => ({
+        text: task.firstChild.textContent.trim(),
+        completed: task.classList.contains('completed')
+      }));
+      localStorage.setItem(day, JSON.stringify(tasks));
     }
 
-    var today = new Date();
-    var currentDay = today.getDay() || 7; // Domingo: 7, Lunes: 1, ..., Sábado: 6
-    if (document.getElementById(days[currentDay - 1])) {
-      document.getElementById(days[currentDay - 1]).style.backgroundColor = '#ffc107';
-    }
+    document.getElementById('mode').addEventListener('change', function() {
+      const isEditMode = this.value === 'edit';
+      document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = isEditMode ? 'block' : 'none');
+      document.querySelectorAll('.task').forEach(task => task.style.pointerEvents = isEditMode ? 'auto' : 'none');
+      document.querySelectorAll('.day-column').forEach(column => column.style.cursor = isEditMode ? 'pointer' : 'default');
+    }).dispatchEvent(new Event('change'));
 
-    // Modo visualización o edición
-    var modeSelect = document.getElementById('mode');
-    modeSelect.addEventListener('change', function() {
-      var mode = modeSelect.value;
-      if (mode === 'view') {
-        document.querySelectorAll('.delete-btn').forEach(function(btn) {
-          btn.style.display = 'none';
-        });
-        document.querySelectorAll('.task').forEach(function(task) {
-          task.style.pointerEvents = 'none';
-        });
-        document.querySelectorAll('.day-column').forEach(function(column) {
-          column.style.cursor = 'default';
-        });
-      } else {
-        document.querySelectorAll('.delete-btn').forEach(function(btn) {
-          btn.style.display = 'block';
-        });
-        document.querySelectorAll('.task').forEach(function(task) {
-          task.style.pointerEvents = 'auto';
-        });
-        document.querySelectorAll('.day-column').forEach(function(column) {
-          column.style.cursor = 'pointer';
-        });
-      }
-    });
-
-    // Inicializar en modo visualización
-    modeSelect.dispatchEvent(new Event('change'));
+    highlightToday();
   });
 </script>
 
