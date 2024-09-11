@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Semana</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    body { font-family: 'Roboto', sans-serif; background-color: #f0f0f0; margin: 0; padding: 20px; }
+    .container { max-width: 1200px; margin: auto; background-color: #fff; padding: 20px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); border-radius: 12px; }
+    h1 { text-align: center; margin-bottom: 20px; font-size: 36px; color: #007bff; }
+    .week-info { text-align: center; margin-bottom: 10px; font-size: 18px; color: #6c757d; }
+    .d-flex { display: flex; justify-content: space-between; flex-wrap: wrap; }
+    .day-column { flex: 1; min-width: 150px; padding: 10px; margin: 10px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); border: 1px solid #ddd; transition: 0.3s; }
+    .day-column:hover { background-color: #e9ecef; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+    .highlight-today { border: 2px solid #e6c12f; background-color: #ffcdcd; }
+    .day-header { text-align: center; font-weight: 700; margin-bottom: 10px; color: #343a40; font-size: 20px; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+    .task { background-color: #007bff; color: #fff; padding: 10px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; text-align: center; transition: 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative; }
+    .task.completed { text-decoration: line-through; background-color: #6c757d; }
+    .task:hover { background-color: #0056b3; transform: scale(1.05); }
+    .delete-btn { position: absolute; top: 5px; right: 5px; color: #fff; background-color: rgba(0, 0, 0, 0.5); border: none; padding: 5px; border-radius: 50%; cursor: pointer; transition: 0.3s; display: none; }
+    .delete-btn:hover { background-color: rgba(0, 0, 0, 0.8); }
+    #calendarBtn { background-color: #007bff; color: #fff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    #calendarBtn:hover { background-color: #0056b3; transform: scale(1.05); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>My Semana</h1>
+  <div class="week-info" id="weekInfoText">Semana del 21 de junio al 27 de junio</div>
+  <div id="modeSelect" class="text-center mb-3">
+    <label for="mode">Modo:</label>
+    <select id="mode">
+      <option value="view">Visualizar</option>
+      <option value="edit">Editar</option>
+    </select>
+  </div>
+  <div class="d-flex">
+    <!-- Días de la semana -->
+    <div id="monday" class="day-column"><div class="day-header">Lunes</div><div class="task-container"></div></div>
+    <div id="tuesday" class="day-column"><div class="day-header">Martes</div><div class="task-container"></div></div>
+    <div id="wednesday" class="day-column"><div class="day-header">Miércoles</div><div class="task-container"></div></div>
+    <div id="thursday" class="day-column"><div class="day-header">Jueves</div><div class="task-container"></div></div>
+    <div id="friday" class="day-column"><div class="day-header">Viernes</div><div class="task-container"></div></div>
+    <div id="saturday" class="day-column"><div class="day-header">Sábado</div><div class="task-container"></div></div>
+    <div id="sunday" class="day-column"><div class="day-header">Domingo</div><div class="task-container"></div></div>
+  </div>
+  <div class="text-center mb-3">
+    <button type="button" id="calendarBtn">Seleccionar Fecha</button>
+    <button type="button" class="btn btn-primary" id="exportBtn">Exportar</button>
+    <button type="button" class="btn btn-secondary" id="importBtn">Importar</button>
+  </div>
+</div>
+
+<!-- Modal para agregar tarea -->
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header">
+    <h5 class="modal-title" id="addTaskModalLabel">Agregar Nueva Tarea</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div class="mb-3">
+        <label for="taskInput" class="form-label">Nombre de la Tarea</label>
+        <input type="text" class="form-control" id="taskInput" placeholder="Ingrese el nombre de la tarea">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="saveTaskBtn">Guardar Tarea</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Modal para exportar JSON -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header">
+    <h5 class="modal-title" id="exportModalLabel">Exportar Datos</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <textarea id="exportData" class="form-control" rows="10" readonly></textarea>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Modal para importar JSON -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header">
+    <h5 class="modal-title" id="importModalLabel">Importar Datos</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div class="mb-3">
+        <label for="importData" class="form-label">Pega los datos JSON aquí</label>
+        <textarea id="importData" class="form-control" rows="10"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="importSaveBtn">Importar</button>
+    </div>
+  </div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const API_URL = 'https://sheetdb.io/api/v1/c6asqy8iwemr6'; // Reemplaza con tu ID de SheetDB
+    const RECORD_ID = 1; // ID del registro a actualizar/obtener
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    const dayColumnMap = { 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday', 0: 'sunday' };
+
+    const calendarBtn = document.getElementById('calendarBtn');
+    const calendar = flatpickr(calendarBtn, {
+      dateFormat: 'd F Y',
+      defaultDate: new Date(),
+      onClose: function(selectedDates, dateStr) {
+        if (selectedDates.length) {
+          updateWeekInfo(selectedDates[0]);
+          localStorage.setItem('selectedDate', dateStr);
+        }
+      }
+    });
+
+    function updateWeekInfo(selectedDate) {
+      const startDate = new Date(selectedDate), endDate = new Date(startDate);
+      startDate.setDate(startDate.getDate() - (startDate.getDay() || 7) + 1);
+      endDate.setDate(startDate.getDate() + 6);
+
+      const weekInfoText = `Del ${startDate.getDate()} de ${startDate.toLocaleString('es', { month: 'long' })} al ${endDate.getDate()} de ${endDate.toLocaleString('es', { month: 'long' })}`;
+      document.getElementById('weekInfoText').textContent = weekInfoText;
+
+      days.forEach((day, i) => {
+        const dayDate = new Date(startDate);
+        dayDate.setDate(startDate.getDate() + i);
+        document.querySelector(`#${day} .day-header`).textContent = dayDate.toLocaleString('es', { weekday: 'long' });
+      });
+
+      highlightToday();
+    }
+
+    function highlightToday() {
+      const today = new Date();
+      const todayColumn = dayColumnMap[today.getDay()];
+      document.getElementById(todayColumn).classList.add('highlight-today');
+    }
+
+    function handleTaskEvents(day) {
+      const taskContainer = document.querySelector(`#${day} .task-container`);
+      loadTasks(day);
+
+      taskContainer.addEventListener('dblclick', e => {
+        if (e.target.classList.contains('task')) {
+          e.target.classList.toggle('completed');
+          saveTasks(day);
+        }
+      });
+
+      document.getElementById(day).addEventListener('click', e => {
+        if (!e.target.closest('.task, .day-header') && document.getElementById('mode').value === 'edit') {
+          const addTaskModal = new bootstrap.Modal(document.getElementById('addTaskModal'));
+          addTaskModal.show();
+
+          document.getElementById('saveTaskBtn').onclick = () => {
+            const taskInput = document.getElementById('taskInput').value.trim();
+            if (taskInput) {
+              const task = document.createElement('div');
+              task.classList.add('task');
+              task.textContent = taskInput;
+
+              const deleteBtn = document.createElement('button');
+              deleteBtn.classList.add('delete-btn');
+              deleteBtn.innerHTML = '&times;';
+              deleteBtn.onclick = e => { e.stopPropagation(); task.remove(); saveTasks(day); };
+              task.appendChild(deleteBtn);
+
+              taskContainer.appendChild(task);
+              addTaskModal.hide();
+              document.getElementById('taskInput').value = '';
+              saveTasks(day);
+            }
+          };
+        }
+      });
+    }
+
+    function loadTasks(day) {
+      const tasks = JSON.parse(localStorage.getItem(day)) || [];
+      const taskContainer = document.querySelector(`#${day} .task-container`);
+      taskContainer.innerHTML = '';
+      tasks.forEach(taskData => {
+        const task = document.createElement('div');
+        task.classList.add('task');
+        task.textContent = taskData.text;
+        if (taskData.completed) {
+          task.classList.add('completed');
+        }
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.onclick = e => { e.stopPropagation(); task.remove(); saveTasks(day); };
+        task.appendChild(deleteBtn);
+
+        taskContainer.appendChild(task);
+      });
+    }
+
+    function saveTasks(day) {
+      const tasks = [...document.querySelectorAll(`#${day} .task`)].map(task => ({
+        text: task.textContent.trim(),
+        completed: task.classList.contains('completed')
+      }));
+      localStorage.setItem(day, JSON.stringify(tasks));
+    }
+
+    function toggleEditMode() {
+      const isEditMode = document.getElementById('mode').value === 'edit';
+      document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = isEditMode ? 'block' : 'none');
+      document.querySelectorAll('.task').forEach(task => task.style.pointerEvents = isEditMode ? 'auto' : 'none');
+      document.querySelectorAll('.day-column').forEach(column => column.style.cursor = isEditMode ? 'pointer' : 'default');
+    }
+
+    document.getElementById('mode').addEventListener('change', toggleEditMode);
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('importBtn').addEventListener('click', importData);
+
+    days.forEach(day => handleTaskEvents(day));
+
+    const savedDate = localStorage.getItem('selectedDate');
+    if (savedDate) {
+      calendar.setDate(savedDate);
+      updateWeekInfo(new Date(savedDate));
+    } else {
+      updateWeekInfo(new Date());
+    }
+
+    highlightToday();
+
+    async function exportData() {
+      const weekData = {};
+      days.forEach(day => {
+        weekData[day] = JSON.parse(localStorage.getItem(day)) || [];
+      });
+      const jsonData = JSON.stringify(weekData, null, 2);
+      updateDataInSheetDB(jsonData);
+    }
+
+    async function updateDataInSheetDB(dataInput) {
+      const status = document.getElementById('status') || document.createElement('p');
+      document.body.appendChild(status);
+
+      try {
+        const response = await fetch(`${API_URL}/id/${RECORD_ID}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ "data": { "data": dataInput } })
+        });
+
+        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+
+        const result = await response.json();
+        status.textContent = result.updated ? 'Datos exportados y actualizados en SheetDB exitosamente.' : 'No se pudo actualizar los datos.';
+        status.style.color = result.updated ? 'green' : 'red';
+
+      } catch (error) {
+        status.textContent = `Error: ${error.message}`;
+        status.style.color = 'red';
+      }
+    }
+
+    async function importData() {
+      try {
+        const response = await fetch(`${API_URL}/search?id=${RECORD_ID}`);
+        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+
+        const data = await response.json();
+        if (data.length > 0) {
+          const weekData = JSON.parse(data[0].data);
+          days.forEach(day => {
+            if (weekData[day]) {
+              localStorage.setItem(day, JSON.stringify(weekData[day]));
+              loadTasks(day);
+            }
+          });
+          alert('Datos importados exitosamente desde SheetDB.');
+        } else {
+          alert('No se encontró ningún dato en SheetDB.');
+        }
+      } catch (error) {
+        alert('Error al importar datos: ' + error.message);
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
