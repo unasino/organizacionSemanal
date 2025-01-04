@@ -1,302 +1,819 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Semana</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <style>
-    body { font-family: 'Roboto', sans-serif; background-color: #f0f0f0; margin: 0; padding: 20px; }
-    .container { max-width: 1200px; margin: auto; background-color: #fff; padding: 20px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); border-radius: 12px; }
-    h1 { text-align: center; margin-bottom: 20px; font-size: 36px; color: #007bff; }
-    .week-info { text-align: center; margin-bottom: 10px; font-size: 18px; color: #6c757d; }
-    .d-flex { display: flex; justify-content: space-between; flex-wrap: wrap; }
-    .day-column { flex: 1; min-width: 150px; padding: 10px; margin: 10px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); border: 1px solid #ddd; transition: 0.3s; }
-    .day-column:hover { background-color: #e9ecef; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-    .highlight-today { border: 2px solid #e6c12f; background-color: #ffcdcd; }
-    .day-header { text-align: center; font-weight: 700; margin-bottom: 10px; color: #343a40; font-size: 20px; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
-    .task { background-color: #007bff; color: #fff; padding: 10px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; text-align: center; transition: 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative; }
-    .task.completed { text-decoration: line-through; background-color: #6c757d; }
-    .task:hover { background-color: #0056b3; transform: scale(1.05); }
-    .delete-btn { position: absolute; top: 5px; right: 5px; color: #fff; background-color: rgba(0, 0, 0, 0.5); border: none; padding: 5px; border-radius: 50%; cursor: pointer; transition: 0.3s; display: none; }
-    .delete-btn:hover { background-color: rgba(0, 0, 0, 0.8); }
-    #calendarBtn { background-color: #007bff; color: #fff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-    #calendarBtn:hover { background-color: #0056b3; transform: scale(1.05); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vista Semanal de Tareas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Estilos CSS Personalizados -->
+    <style>
+        :root {
+            --color-upcoming: #28a745;
+            --color-due-today: #ffc107;
+            --color-expired: #dc3545;
+            --color-background: #f8f9fa;
+            --color-card-background: #ffffff;
+            --color-notification-success: #28a745;
+            --color-notification-error: #dc3545;
+            --color-text-dark: #343a40;
+            --color-text-light: #ffffff;
+            --header-bg: #343a40;
+            --header-text: #ffffff;
+            --current-day-bg: #0d6efd; /* Color para resaltar el día actual */
+            --current-day-text: #ffffff;
+            /* Nueva variable para animación holográfica */
+            --reminder-animation: glow 2s infinite;
+        }
+
+        body {
+            background-color: var(--color-background);
+            padding-top: 20px;
+        }
+
+        .day-section {
+            background-color: var(--color-card-background);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .day-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .day-header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Estilo para resaltar el día actual */
+        .day-header.current-day {
+            background-color: var(--current-day-bg);
+            color: var(--current-day-text);
+        }
+
+        .tasks-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .task-card {
+            cursor: pointer;
+            border-left: 5px solid;
+            background-color: var(--color-card-background);
+            transition: background-color 0.3s, border-left-color 0.3s;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .task-card.upcoming {
+            border-left-color: var(--color-upcoming);
+        }
+
+        .task-card.due-today {
+            border-left-color: var(--color-due-today);
+        }
+
+        .task-card.expired {
+            border-left-color: var(--color-expired);
+        }
+
+        /* Nueva clase para recordatorios con animación holográfica */
+        .task-card.reminder {
+            border-left-color: #6f42c1; /* Color distintivo para recordatorios */
+            animation: var(--reminder-animation);
+        }
+
+        .task-card.reminder .card-body {
+            background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(111, 66, 193, 0.7);
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(111, 66, 193, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(111, 66, 193, 1);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(111, 66, 193, 0.5);
+            }
+        }
+
+        .task-card .card-body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .task-card .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .task-card .card-text {
+            margin-top: auto;
+            font-weight: bold;
+        }
+
+        /* Spinner Overlay */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1051; /* Superior a Bootstrap modals (z-index: 1050) */
+            display: none; /* Oculto por defecto */
+        }
+
+        /* Notificación */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--color-text-dark);
+            color: var(--color-text-light);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.3s ease;
+            z-index: 2000;
+            font-size: 1rem;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success {
+            background-color: var(--color-notification-success);
+        }
+
+        .notification.error {
+            background-color: var(--color-notification-error);
+        }
+
+        /* Navegación de Semanas */
+        .week-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .week-range {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0 15px;
+        }
+
+        /* Responsividad para días de la semana */
+        @media (min-width: 576px) {
+            .days-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .days-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .days-grid {
+                grid-template-columns: repeat(7, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>My Semana</h1>
-  <div class="week-info" id="weekInfoText">Semana del 21 de junio al 27 de junio</div>
-  <div id="modeSelect" class="text-center mb-3">
-    <label for="mode">Modo:</label>
-    <select id="mode">
-      <option value="view">Visualizar</option>
-      <option value="edit">Editar</option>
-    </select>
-  </div>
-  <div class="d-flex">
-    <!-- Días de la semana -->
-    <div id="monday" class="day-column"><div class="day-header">Lunes</div><div class="task-container"></div></div>
-    <div id="tuesday" class="day-column"><div class="day-header">Martes</div><div class="task-container"></div></div>
-    <div id="wednesday" class="day-column"><div class="day-header">Miércoles</div><div class="task-container"></div></div>
-    <div id="thursday" class="day-column"><div class="day-header">Jueves</div><div class="task-container"></div></div>
-    <div id="friday" class="day-column"><div class="day-header">Viernes</div><div class="task-container"></div></div>
-    <div id="saturday" class="day-column"><div class="day-header">Sábado</div><div class="task-container"></div></div>
-    <div id="sunday" class="day-column"><div class="day-header">Domingo</div><div class="task-container"></div></div>
-  </div>
-  <div class="text-center mb-3">
-    <button type="button" id="calendarBtn">Seleccionar Fecha</button>
-    <button type="button" class="btn btn-primary" id="exportBtn">Exportar</button>
-    <button type="button" class="btn btn-secondary" id="importBtn">Importar</button>
-  </div>
-</div>
+    <div class="container">
+        <h1 class="text-center mb-4">Vista Semanal de Tareas</h1>
+        
+        <!-- Navegación de Semanas -->
+        <div class="week-navigation mb-4">
+            <button class="btn btn-secondary" id="prevWeekBtn" aria-label="Semana Anterior">← Semana Anterior</button>
+            <div class="week-range" id="weekRange">Semana: --/--/---- - --/--/----</div>
+            <button class="btn btn-secondary" id="nextWeekBtn" aria-label="Semana Siguiente">Semana Siguiente →</button>
+            <button class="btn btn-primary ms-3" id="currentWeekBtn" aria-label="Semana Actual">↺ Semana Actual</button>
+        </div>
 
-<!-- Modal para agregar tarea -->
-<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
-  <div class="modal-dialog"><div class="modal-content"><div class="modal-header">
-    <h5 class="modal-title" id="addTaskModalLabel">Agregar Nueva Tarea</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-    <div class="modal-body">
-      <div class="mb-3">
-        <label for="taskInput" class="form-label">Nombre de la Tarea</label>
-        <input type="text" class="form-control" id="taskInput" placeholder="Ingrese el nombre de la tarea">
+        <div class="days-grid">
+            <!-- Lunes -->
+            <section class="day-section" id="Monday" aria-labelledby="MondayHeading">
+                <div class="day-header" id="MondayHeading">Lunes</div>
+                <div class="tasks-container" id="MondayTasks">
+                    <p class="text-center text-muted">Cargando tareas...</p>
+                </div>
+            </section>
+            <!-- Martes -->
+            <section class="day-section" id="Tuesday" aria-labelledby="TuesdayHeading">
+                <div class="day-header" id="TuesdayHeading">Martes</div>
+                <div class="tasks-container" id="TuesdayTasks">
+                    <p class="text-center text-muted">Cargando tareas...</p>
+                </div>
+            </section>
+            <!-- Miércoles -->
+            <section class="day-section" id="Wednesday" aria-labelledby="WednesdayHeading">
+                <div class="day-header" id="WednesdayHeading">Miércoles</div>
+                <div class="tasks-container" id="WednesdayTasks">
+                    <p class="text-center text-muted">Cargando tareas...</p>
+                </div>
+            </section>
+            <!-- Jueves -->
+            <section class="day-section" id="Thursday" aria-labelledby="ThursdayHeading">
+                <div class="day-header" id="ThursdayHeading">Jueves</div>
+                <div class="tasks-container" id="ThursdayTasks">
+                    <p class="text-center text-muted">Cargando tareas...</p>
+                </div>
+            </section>
+            <!-- Viernes -->
+            <section class="day-section" id="Friday" aria-labelledby="FridayHeading">
+                <div class="day-header" id="FridayHeading">Viernes</div>
+                <div class="tasks-container" id="FridayTasks">
+                    <p class="text-center text-muted">Cargando tareas...</p>
+                </div>
+            </section>
+            <!-- Sábado -->
+            <section class="day-section" id="Saturday" aria-labelledby="SaturdayHeading">
+                <div class="day-header" id="SaturdayHeading">Sábado</div>
+                <div class="tasks-container" id="SaturdayTasks">
+                    <p class="text-center text-muted">Cargando tareas...</p>
+                </div>
+            </section>
+            <!-- Domingo -->
+            <section class="day-section" id="Sunday" aria-labelledby="SundayHeading">
+                <div class="day-header" id="SundayHeading">Domingo</div>
+                <div class="tasks-container" id="SundayTasks">
+                    <p class="text-center text-muted">Cargando tareas...</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal para Detalles de Tarea -->
+    <div id="taskModal" class="modal fade" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="taskModalLabel">Detalles de la Tarea</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <img id="modalImage" class="img-fluid mb-3" src="" alt="Imagen de la Tarea" style="display: none;" loading="lazy">
+            <h3 id="modalTitle"></h3>
+            <p><strong>Cantidad de días para vencer:</strong> <span id="modalDaysLeft"></span></p>
+            <p id="modalDescription"></p>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-      <button type="button" class="btn btn-primary" id="saveTaskBtn">Guardar Tarea</button>
-    </div>
-  </div></div>
-</div>
 
-<!-- Modal para exportar JSON -->
-<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header">
-    <h5 class="modal-title" id="exportModalLabel">Exportar Datos</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-    <div class="modal-body">
-      <textarea id="exportData" class="form-control" rows="10" readonly></textarea>
+    <!-- Spinner de Carga -->
+    <div class="spinner-overlay" id="spinnerOverlay">
+        <div class="spinner-border text-primary" role="status" aria-label="Cargando">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-    </div>
-  </div></div>
-</div>
 
-<!-- Modal para importar JSON -->
-<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header">
-    <h5 class="modal-title" id="importModalLabel">Importar Datos</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-    <div class="modal-body">
-      <div class="mb-3">
-        <label for="importData" class="form-label">Pega los datos JSON aquí</label>
-        <textarea id="importData" class="form-control" rows="10"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-      <button type="button" class="btn btn-primary" id="importSaveBtn">Importar</button>
-    </div>
-  </div></div>
-</div>
+    <!-- Notificación -->
+    <div id="notification" class="notification" role="alert" aria-live="assertive"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const API_URL = 'https://sheetdb.io/api/v1/2fm6yyntvm5a5'; // Reemplaza con tu ID de SheetDB
-    const RECORD_ID = 1; // ID del registro a actualizar/obtener
-    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    const dayColumnMap = { 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday', 0: 'sunday' };
+    <!-- Bootstrap JS y Dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Importar Firebase como módulos -->
+    <script type="module">
+        // Importar funciones necesarias de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    const calendarBtn = document.getElementById('calendarBtn');
-    const calendar = flatpickr(calendarBtn, {
-      dateFormat: 'd F Y',
-      defaultDate: new Date(),
-      onClose: function(selectedDates, dateStr) {
-        if (selectedDates.length) {
-          updateWeekInfo(selectedDates[0]);
-          localStorage.setItem('selectedDate', dateStr);
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "tareaspendientes-1cadf.firebaseapp.com",
+            projectId: "tareaspendientes-1cadf",
+            storageBucket: "tareaspendientes-1cadf.appspot.com",
+            messagingSenderId: "580768863245",
+            appId: "1:580768863245:web:28aa8abdc6f4281c7a7144",
+            measurementId: "G-NH654YBBF5"
+        };
+
+        // Inicializa Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Obtener elementos del DOM
+        const tasksContainer = {
+            Monday: document.getElementById('MondayTasks'),
+            Tuesday: document.getElementById('TuesdayTasks'),
+            Wednesday: document.getElementById('WednesdayTasks'),
+            Thursday: document.getElementById('ThursdayTasks'),
+            Friday: document.getElementById('FridayTasks'),
+            Saturday: document.getElementById('SaturdayTasks'),
+            Sunday: document.getElementById('SundayTasks')
+        };
+        const taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDaysLeft = document.getElementById('modalDaysLeft');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalImage = document.getElementById('modalImage');
+        const spinnerOverlay = document.getElementById('spinnerOverlay');
+        const notification = document.getElementById('notification');
+        const weekRangeDisplay = document.getElementById('weekRange');
+        const prevWeekBtn = document.getElementById('prevWeekBtn');
+        const nextWeekBtn = document.getElementById('nextWeekBtn');
+        const currentWeekBtn = document.getElementById('currentWeekBtn');
+
+        let currentWeekOffset = 0; // 0: semana actual, -1: semana pasada, 1: próxima semana, etc.
+
+        /**
+         * Función para mostrar notificaciones
+         * @param {string} message - Mensaje de la notificación
+         * @param {string} type - Tipo de notificación ('success' o 'error')
+         */
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
         }
-      }
-    });
 
-    function updateWeekInfo(selectedDate) {
-      const startDate = new Date(selectedDate), endDate = new Date(startDate);
-      startDate.setDate(startDate.getDate() - (startDate.getDay() || 7) + 1);
-      endDate.setDate(startDate.getDate() + 6);
-
-      const weekInfoText = `Del ${startDate.getDate()} de ${startDate.toLocaleString('es', { month: 'long' })} al ${endDate.getDate()} de ${endDate.toLocaleString('es', { month: 'long' })}`;
-      document.getElementById('weekInfoText').textContent = weekInfoText;
-
-      days.forEach((day, i) => {
-        const dayDate = new Date(startDate);
-        dayDate.setDate(startDate.getDate() + i);
-        document.querySelector(`#${day} .day-header`).textContent = dayDate.toLocaleString('es', { weekday: 'long' });
-      });
-
-      highlightToday();
-    }
-
-    function highlightToday() {
-      const today = new Date();
-      const todayColumn = dayColumnMap[today.getDay()];
-      document.getElementById(todayColumn).classList.add('highlight-today');
-    }
-
-    function handleTaskEvents(day) {
-      const taskContainer = document.querySelector(`#${day} .task-container`);
-      loadTasks(day);
-
-      taskContainer.addEventListener('dblclick', e => {
-        if (e.target.classList.contains('task')) {
-          e.target.classList.toggle('completed');
-          saveTasks(day);
+        /**
+         * Función para mostrar el spinner de carga
+         */
+        function showSpinner() {
+            spinnerOverlay.style.display = 'flex';
         }
-      });
 
-      document.getElementById(day).addEventListener('click', e => {
-        if (!e.target.closest('.task, .day-header') && document.getElementById('mode').value === 'edit') {
-          const addTaskModal = new bootstrap.Modal(document.getElementById('addTaskModal'));
-          addTaskModal.show();
+        /**
+         * Función para ocultar el spinner de carga
+         */
+        function hideSpinner() {
+            spinnerOverlay.style.display = 'none';
+        }
 
-          document.getElementById('saveTaskBtn').onclick = () => {
-            const taskInput = document.getElementById('taskInput').value.trim();
-            if (taskInput) {
-              const task = document.createElement('div');
-              task.classList.add('task');
-              task.textContent = taskInput;
-
-              const deleteBtn = document.createElement('button');
-              deleteBtn.classList.add('delete-btn');
-              deleteBtn.innerHTML = '&times;';
-              deleteBtn.onclick = e => { e.stopPropagation(); task.remove(); saveTasks(day); };
-              task.appendChild(deleteBtn);
-
-              taskContainer.appendChild(task);
-              addTaskModal.hide();
-              document.getElementById('taskInput').value = '';
-              saveTasks(day);
+        /**
+         * Función para abrir el modal de detalles de la tarea
+         * @param {object} task - Objeto de la tarea
+         */
+        function openTaskModal(task) {
+            if (task.urlImagen) {
+                modalImage.src = task.urlImagen;
+                modalImage.alt = `Imagen de la tarea: ${task.nombre}`;
+                modalImage.style.display = 'block';
+            } else {
+                modalImage.style.display = 'none';
             }
-          };
-        }
-      });
-    }
 
-    function loadTasks(day) {
-      const tasks = JSON.parse(localStorage.getItem(day)) || [];
-      const taskContainer = document.querySelector(`#${day} .task-container`);
-      taskContainer.innerHTML = '';
-      tasks.forEach(taskData => {
-        const task = document.createElement('div');
-        task.classList.add('task');
-        task.textContent = taskData.text;
-        if (taskData.completed) {
-          task.classList.add('completed');
+            modalTitle.textContent = task.nombre;
+            const daysLeft = calculateDaysLeft(task.fecha);
+            if (daysLeft > 0) {
+                modalDaysLeft.textContent = `Faltan ${daysLeft} día${daysLeft !== 1 ? 's' : ''}.`;
+            } else if (daysLeft === 0) {
+                modalDaysLeft.textContent = `Hoy es el día de vencimiento.`;
+            } else {
+                modalDaysLeft.textContent = `Vencida hace ${Math.abs(daysLeft)} día${Math.abs(daysLeft) !== 1 ? 's' : ''}.`;
+            }
+            modalDescription.textContent = task.descripcion || 'No hay descripción disponible.';
+
+            taskModal.show();
         }
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.classList.add('delete-btn');
-        deleteBtn.innerHTML = '&times;';
-        deleteBtn.onclick = e => { e.stopPropagation(); task.remove(); saveTasks(day); };
-        task.appendChild(deleteBtn);
+        /**
+         * Función para formatear fechas en formato 'DD/MM/YYYY'
+         * @param {string} dateStr - Fecha en formato 'YYYY-MM-DD'
+         * @returns {string} - Fecha formateada
+         */
+        function formatDate(dateStr) {
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+        }
 
-        taskContainer.appendChild(task);
-      });
-    }
+        /**
+         * Función para obtener el nombre del día de la semana en español
+         * @param {Date} date - Objeto Date
+         * @returns {string} - Nombre del día en español
+         */
+        function getDayName(date) {
+            const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            return days[date.getDay()];
+        }
 
-    function saveTasks(day) {
-      const tasks = [...document.querySelectorAll(`#${day} .task`)].map(task => ({
-        text: task.textContent.trim(),
-        completed: task.classList.contains('completed')
-      }));
-      localStorage.setItem(day, JSON.stringify(tasks));
-    }
+        /**
+         * Función para calcular la cantidad de días restantes para la fecha de vencimiento
+         * @param {string} dateStr - Fecha en formato 'YYYY-MM-DD'
+         * @returns {number} - Cantidad de días restantes (positivo), cero o negativo si ya venció
+         */
+        function calculateDaysLeft(dateStr) {
+            const today = new Date();
+            // Configurar la zona horaria a Perú (UTC-5)
+            const options = { timeZone: 'America/Lima', year: 'numeric', month: 'numeric', day: 'numeric' };
+            const todayPeruStr = new Intl.DateTimeFormat('en-US', options).format(today);
+            const todayPeru = new Date(todayPeruStr);
+            todayPeru.setHours(0, 0, 0, 0); // Establecer la hora a medianoche para comparar solo fechas
 
-    function toggleEditMode() {
-      const isEditMode = document.getElementById('mode').value === 'edit';
-      document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = isEditMode ? 'block' : 'none');
-      document.querySelectorAll('.task').forEach(task => task.style.pointerEvents = isEditMode ? 'auto' : 'none');
-      document.querySelectorAll('.day-column').forEach(column => column.style.cursor = isEditMode ? 'pointer' : 'default');
-    }
+            const dueDate = new Date(dateStr + 'T00:00:00-05:00'); // Asegurar la zona horaria de Perú (UTC-5)
+            dueDate.setHours(0, 0, 0, 0);
 
-    document.getElementById('mode').addEventListener('change', toggleEditMode);
-    document.getElementById('exportBtn').addEventListener('click', exportData);
-    document.getElementById('importBtn').addEventListener('click', importData);
+            const diffTime = dueDate - todayPeru;
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-    days.forEach(day => handleTaskEvents(day));
+            return diffDays;
+        }
 
-    const savedDate = localStorage.getItem('selectedDate');
-    if (savedDate) {
-      calendar.setDate(savedDate);
-      updateWeekInfo(new Date(savedDate));
-    } else {
-      updateWeekInfo(new Date());
-    }
+        /**
+         * Función para crear una tarjeta de tarea
+         * Modificada para incluir la clase 'reminder' en los recordatorios
+         * @param {object} task - Objeto de la tarea
+         * @returns {HTMLElement} - Elemento de la tarjeta de tarea
+         */
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.classList.add('card', 'task-card', 'h-100'); // h-100 para igualar alturas
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('aria-label', `Tarea: ${task.nombre}`);
 
-    highlightToday();
+            // Calcular días restantes
+            const daysLeft = calculateDaysLeft(task.fecha);
 
-    async function exportData() {
-      const weekData = {};
-      days.forEach(day => {
-        weekData[day] = JSON.parse(localStorage.getItem(day)) || [];
-      });
-      const jsonData = JSON.stringify(weekData, null, 2);
-      updateDataInSheetDB(jsonData);
-    }
+            // Agregar clase según el estado de la tarea
+            if (task.isReminder) {
+                card.classList.add('reminder');
+            } else if (daysLeft > 0) {
+                card.classList.add('upcoming');
+            } else if (daysLeft === 0) {
+                card.classList.add('due-today');
+            } else {
+                card.classList.add('expired');
+            }
 
-    async function updateDataInSheetDB(dataInput) {
-      const status = document.getElementById('status') || document.createElement('p');
-      document.body.appendChild(status);
+            // Contenido de la tarea
+            const cardBody = document.createElement('div');
+            cardBody.classList.add('card-body', 'd-flex', 'flex-column');
 
-      try {
-        const response = await fetch(`${API_URL}/id/${RECORD_ID}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ "data": { "data": dataInput } })
+            const cardTitle = document.createElement('h5');
+            cardTitle.classList.add('card-title');
+            cardTitle.textContent = task.nombre;
+            cardBody.appendChild(cardTitle);
+
+            // Si es un recordatorio, agregar una etiqueta
+            if (task.isReminder) {
+                const reminderBadge = document.createElement('span');
+                reminderBadge.classList.add('badge', 'bg-info', 'mb-2');
+                reminderBadge.textContent = 'Recordatorio';
+                cardBody.appendChild(reminderBadge);
+            }
+
+            const cardStatus = document.createElement('p');
+            cardStatus.classList.add('card-text', 'mt-auto'); // mt-auto para empujar al final
+            if (daysLeft > 0) {
+                cardStatus.innerHTML = `<strong>Faltan:</strong> ${daysLeft} día${daysLeft !== 1 ? 's' : ''}.`;
+                cardStatus.style.color = 'var(--color-upcoming)'; // Verde para tareas pendientes
+            } else if (daysLeft === 0) {
+                cardStatus.innerHTML = `<strong>Hoy es el día de vencimiento.</strong>`;
+                cardStatus.style.color = 'var(--color-due-today)'; // Amarillo para tareas que vencen hoy
+            } else {
+                cardStatus.innerHTML = `<strong>Vencida:</strong> Hace ${Math.abs(daysLeft)} día${Math.abs(daysLeft) !== 1 ? 's' : ''}.`;
+                cardStatus.style.color = 'var(--color-expired)'; // Rojo para tareas vencidas
+            }
+
+            cardBody.appendChild(cardStatus);
+            card.appendChild(cardBody);
+
+            // Evento para abrir el modal al hacer clic en la tarjeta
+            card.addEventListener('click', () => {
+                openTaskModal(task);
+            });
+
+            // Evento para abrir el modal al presionar Enter en la tarjeta (accesibilidad)
+            card.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    openTaskModal(task);
+                }
+            });
+
+            return card;
+        }
+
+        /**
+         * Función para obtener el rango de fechas de la semana actual basado en weekOffset
+         * @param {number} offset - Desplazamiento de semanas (0: actual, -1: pasada, 1: siguiente, etc.)
+         * @returns {object} - Objeto con startDate y endDate en formato 'YYYY-MM-DD' y objetos Date para cada día
+         */
+        function getWeekRange(offset = 0) {
+            const today = new Date();
+            const options = { timeZone: 'America/Lima', year: 'numeric', month: 'numeric', day: 'numeric' };
+            const todayPeruStr = new Intl.DateTimeFormat('en-US', options).format(today);
+            const todayPeru = new Date(todayPeruStr);
+            todayPeru.setHours(0, 0, 0, 0);
+
+            // Obtener el día de la semana (0: Domingo, 1: Lunes, ..., 6: Sábado)
+            const dayOfWeek = todayPeru.getDay();
+
+            // Calcular el lunes de la semana actual
+            const monday = new Date(todayPeru);
+            if (dayOfWeek === 0) { // Si es domingo
+                monday.setDate(monday.getDate() - 6);
+            } else {
+                monday.setDate(monday.getDate() - (dayOfWeek - 1));
+            }
+
+            // Aplicar el desplazamiento de semanas
+            monday.setDate(monday.getDate() + (offset * 7));
+
+            const sunday = new Date(monday);
+            sunday.setDate(sunday.getDate() + 6);
+
+            // Formatear fechas a 'YYYY-MM-DD'
+            const startDate = monday.toISOString().split('T')[0];
+            const endDate = sunday.toISOString().split('T')[0];
+
+            // Crear un objeto con las fechas de cada día de la semana
+            const weekDates = {
+                Monday: new Date(monday),
+                Tuesday: new Date(monday),
+                Wednesday: new Date(monday),
+                Thursday: new Date(monday),
+                Friday: new Date(monday),
+                Saturday: new Date(monday),
+                Sunday: new Date(monday)
+            };
+            weekDates.Tuesday.setDate(monday.getDate() + 1);
+            weekDates.Wednesday.setDate(monday.getDate() + 2);
+            weekDates.Thursday.setDate(monday.getDate() + 3);
+            weekDates.Friday.setDate(monday.getDate() + 4);
+            weekDates.Saturday.setDate(monday.getDate() + 5);
+            weekDates.Sunday.setDate(monday.getDate() + 6);
+
+            return { startDate, endDate, weekDates, monday, sunday };
+        }
+
+        /**
+         * Función para verificar si dos fechas son iguales (solo fecha, sin tiempo)
+         * @param {Date} date1 
+         * @param {Date} date2 
+         * @returns {boolean}
+         */
+        function isSameDate(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() &&
+                   date1.getMonth() === date2.getMonth() &&
+                   date1.getDate() === date2.getDate();
+        }
+
+        /**
+         * Función para agrupar tareas por día de la semana y agregar recordatorios al día actual
+         * @param {Array} tasks - Array de tareas
+         * @param {object} weekRangeObj - Objeto con startDate, endDate y weekDates
+         * @returns {object} - Objeto con días de la semana como claves y arrays de tareas como valores
+         */
+        function groupTasksByDay(tasks, weekRangeObj) {
+            const grouped = {
+                Monday: [],
+                Tuesday: [],
+                Wednesday: [],
+                Thursday: [],
+                Friday: [],
+                Saturday: [],
+                Sunday: []
+            };
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const { startDate, endDate, weekDates } = weekRangeObj;
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            start.setHours(0, 0, 0, 0);
+            end.setHours(0, 0, 0, 0);
+
+            // Verificar si 'today' está dentro de la semana actual
+            const isCurrentWeek = today >= start && today <= end;
+
+            // Determinar el día de la semana para 'today' si está dentro de la semana visualizada
+            let currentDayKey = '';
+            if (isCurrentWeek) {
+                const dayName = getDayName(today);
+                switch(dayName) {
+                    case 'Lunes':
+                        currentDayKey = 'Monday';
+                        break;
+                    case 'Martes':
+                        currentDayKey = 'Tuesday';
+                        break;
+                    case 'Miércoles':
+                        currentDayKey = 'Wednesday';
+                        break;
+                    case 'Jueves':
+                        currentDayKey = 'Thursday';
+                        break;
+                    case 'Viernes':
+                        currentDayKey = 'Friday';
+                        break;
+                    case 'Sábado':
+                        currentDayKey = 'Saturday';
+                        break;
+                    case 'Domingo':
+                        currentDayKey = 'Sunday';
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            tasks.forEach(task => {
+                const taskDate = new Date(task.fecha + 'T00:00:00-05:00'); // Zona horaria de Perú (UTC-5)
+                taskDate.setHours(0, 0, 0, 0);
+
+                const daysLeft = calculateDaysLeft(task.fecha);
+
+                // Asignar la tarea al día correspondiente de la semana
+                const dayName = getDayName(taskDate);
+                let dayKey = '';
+                switch(dayName) {
+                    case 'Lunes':
+                        dayKey = 'Monday';
+                        break;
+                    case 'Martes':
+                        dayKey = 'Tuesday';
+                        break;
+                    case 'Miércoles':
+                        dayKey = 'Wednesday';
+                        break;
+                    case 'Jueves':
+                        dayKey = 'Thursday';
+                        break;
+                    case 'Viernes':
+                        dayKey = 'Friday';
+                        break;
+                    case 'Sábado':
+                        dayKey = 'Saturday';
+                        break;
+                    case 'Domingo':
+                        dayKey = 'Sunday';
+                        break;
+                    default:
+                        break;
+                }
+
+                if (dayKey) {
+                    grouped[dayKey].push(task);
+                }
+
+                // Agregar recordatorio al día actual si la tarea vence en 5 días o menos y estamos en la semana actual
+                if (isCurrentWeek && daysLeft >= 0 && daysLeft <= 5) {
+                    if (currentDayKey) {
+                        grouped[currentDayKey].push({...task, isReminder: true});
+                    }
+                }
+            });
+
+            return grouped;
+        }
+
+        /**
+         * Función para actualizar los encabezados de los días con sus fechas y resaltar el día actual
+         * @param {object} weekRangeObj - Objeto con startDate, endDate y weekDates
+         */
+        function updateWeekRangeDisplay(weekRangeObj) {
+            const { startDate, endDate, weekDates } = weekRangeObj;
+            const start = formatDate(startDate);
+            const end = formatDate(endDate);
+            weekRangeDisplay.textContent = `Semana: ${start} - ${end}`;
+
+            // Obtener la fecha de hoy para resaltar el día actual
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Actualizar cada encabezado de día con la fecha
+            for (let day in weekDates) {
+                const daySection = document.getElementById(day);
+                const dayHeader = document.getElementById(`${day}Heading`);
+                const dayDate = weekDates[day];
+
+                // Formatear la fecha
+                const formattedDate = dayDate.getDate();
+
+                // Actualizar el texto del encabezado para incluir la fecha
+                dayHeader.textContent = `${getDayName(dayDate)} ${formattedDate}`;
+
+                // Verificar si este día es hoy para resaltarlo
+                if (isSameDate(today, dayDate)) {
+                    dayHeader.classList.add('current-day');
+                } else {
+                    dayHeader.classList.remove('current-day');
+                }
+            }
+        }
+
+        /**
+         * Función para mostrar todas las tareas agrupadas por día dentro de la semana seleccionada
+         * @param {object} weekRangeObj - Objeto con startDate, endDate y weekDates
+         */
+        async function displayTasksForWeek(weekRangeObj) {
+            showSpinner();
+            try {
+                const { startDate, endDate } = weekRangeObj;
+
+                // Crear una consulta para obtener tareas dentro del rango de fechas
+                const tareasCol = collection(db, 'tareas');
+                const tareasQueryObj = query(
+                    tareasCol,
+                    where('fecha', '>=', startDate),
+                    where('fecha', '<=', endDate)
+                );
+
+                const tareasSnapshot = await getDocs(tareasQueryObj);
+                const tareasList = tareasSnapshot.docs.map(doc => doc.data());
+
+                // Agrupar tareas por día de la semana, incluyendo recordatorios
+                const groupedTasks = groupTasksByDay(tareasList, weekRangeObj);
+
+                // Limpiar y actualizar el contenido de cada día
+                for (let day in tasksContainer) {
+                    const container = tasksContainer[day];
+                    container.innerHTML = ''; // Vaciar el contenedor
+
+                    const tasks = groupedTasks[day];
+                    if (tasks.length === 0) {
+                        container.innerHTML = '<p class="text-center text-muted">No hay tareas para este día.</p>';
+                    } else {
+                        const fragment = document.createDocumentFragment();
+                        tasks.forEach(task => {
+                            const taskCard = createTaskCard(task);
+                            fragment.appendChild(taskCard);
+                        });
+                        container.appendChild(fragment);
+                    }
+                }
+
+                hideSpinner();
+            } catch (error) {
+                console.error('Error al obtener las tareas:', error);
+                showNotification('Error al cargar las tareas.', 'error');
+                hideSpinner();
+            }
+        }
+
+        /**
+         * Función para manejar la actualización de la vista semanal
+         */
+        function updateWeekView() {
+            const weekRangeObj = getWeekRange(currentWeekOffset);
+            updateWeekRangeDisplay(weekRangeObj);
+            displayTasksForWeek(weekRangeObj);
+        }
+
+        // Eventos de Navegación de Semanas
+        prevWeekBtn.addEventListener('click', () => {
+            currentWeekOffset -= 1;
+            updateWeekView();
         });
 
-        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+        nextWeekBtn.addEventListener('click', () => {
+            currentWeekOffset += 1;
+            updateWeekView();
+        });
 
-        const result = await response.json();
-        status.textContent = result.updated ? 'Datos exportados y actualizados en SheetDB exitosamente.' : 'No se pudo actualizar los datos.';
-        status.style.color = result.updated ? 'green' : 'red';
+        currentWeekBtn.addEventListener('click', () => {
+            currentWeekOffset = 0;
+            updateWeekView();
+        });
 
-      } catch (error) {
-        status.textContent = `Error: ${error.message}`;
-        status.style.color = 'red';
-      }
-    }
-
-    async function importData() {
-      try {
-        const response = await fetch(`${API_URL}/search?id=${RECORD_ID}`);
-        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-
-        const data = await response.json();
-        if (data.length > 0) {
-          const weekData = JSON.parse(data[0].data);
-          days.forEach(day => {
-            if (weekData[day]) {
-              localStorage.setItem(day, JSON.stringify(weekData[day]));
-              loadTasks(day);
-            }
-          });
-          alert('Datos importados exitosamente desde SheetDB.');
-        } else {
-          alert('No se encontró ningún dato en SheetDB.');
-        }
-      } catch (error) {
-        alert('Error al importar datos: ' + error.message);
-      }
-    }
-  });
-</script>
-
+        /**
+         * Inicialización: Mostrar la semana actual al cargar la página
+         */
+        document.addEventListener('DOMContentLoaded', updateWeekView);
+    </script>
 </body>
 </html>
