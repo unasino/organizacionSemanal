@@ -225,6 +225,13 @@
             margin-bottom: 25px;
             flex-wrap: wrap;
             gap: 15px;
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--color-background);
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .week-navigation .btn {
@@ -246,9 +253,14 @@
         }
 
         /* Responsividad para Días de la Semana */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 20px;
+        }
+
         @media (min-width: 576px) {
             .days-grid {
-                display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
             }
@@ -553,8 +565,10 @@
 
             modalTitle.textContent = task.nombre;
             const daysLeft = calculateDaysLeft(task.fecha);
-            if (daysLeft > 0) {
-                modalDaysLeft.textContent = `Faltan ${daysLeft} día${daysLeft !== 1 ? 's' : ''}.`;
+            if (daysLeft > 1) {
+                modalDaysLeft.textContent = `Faltan ${daysLeft} días.`;
+            } else if (daysLeft === 1) {
+                modalDaysLeft.textContent = `Vence mañana.`;
             } else if (daysLeft === 0) {
                 modalDaysLeft.textContent = `Hoy es el día de vencimiento.`;
             } else {
@@ -626,8 +640,10 @@
             // Agregar clase según el estado de la tarea
             if (task.isReminder) {
                 card.classList.add('reminder');
-            } else if (daysLeft > 0) {
+            } else if (daysLeft > 1) {
                 card.classList.add('upcoming');
+            } else if (daysLeft === 1) {
+                card.classList.add('upcoming'); // Puedes cambiar el color o estilo si lo deseas
             } else if (daysLeft === 0) {
                 card.classList.add('due-today');
             } else {
@@ -642,8 +658,11 @@
             const status = document.createElement('span');
             status.classList.add('card-text');
 
-            if (daysLeft > 0) {
-                status.innerHTML = `<strong>Faltan:</strong> ${daysLeft} día${daysLeft !== 1 ? 's' : ''}.`;
+            if (daysLeft > 1) {
+                status.innerHTML = `<strong>Faltan:</strong> ${daysLeft} días.`;
+                status.style.color = 'var(--color-upcoming)';
+            } else if (daysLeft === 1) {
+                status.innerHTML = `<strong>Faltan:</strong> 1 día.`;
                 status.style.color = 'var(--color-upcoming)';
             } else if (daysLeft === 0) {
                 status.innerHTML = `<strong>Hoy es el día de vencimiento.</strong>`;
@@ -935,6 +954,9 @@
                 }
 
                 hideSpinner();
+
+                // Desplazarse al día actual después de cargar las tareas
+                scrollToCurrentDay(weekRangeObj);
             } catch (error) {
                 console.error('Error al obtener las tareas:', error);
                 showNotification('Error al cargar las tareas.', 'error');
@@ -966,6 +988,55 @@
             currentWeekOffset = 0;
             updateWeekView();
         });
+
+        /**
+         * Función para desplazarse al día actual en la página
+         * @param {object} weekRangeObj - Objeto con startDate, endDate y weekDates
+         */
+        function scrollToCurrentDay(weekRangeObj) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const { weekDates } = weekRangeObj;
+            let currentDayKey = '';
+
+            // Determinar el día de la semana para 'today' si está dentro de la semana visualizada
+            if (today >= weekRangeObj.monday && today <= weekRangeObj.sunday) {
+                const dayName = getDayName(today);
+                switch(dayName) {
+                    case 'Lunes':
+                        currentDayKey = 'Monday';
+                        break;
+                    case 'Martes':
+                        currentDayKey = 'Tuesday';
+                        break;
+                    case 'Miércoles':
+                        currentDayKey = 'Wednesday';
+                        break;
+                    case 'Jueves':
+                        currentDayKey = 'Thursday';
+                        break;
+                    case 'Viernes':
+                        currentDayKey = 'Friday';
+                        break;
+                    case 'Sábado':
+                        currentDayKey = 'Saturday';
+                        break;
+                    case 'Domingo':
+                        currentDayKey = 'Sunday';
+                        break;
+                    default:
+                        break;
+                }
+
+                if (currentDayKey) {
+                    const currentDaySection = document.getElementById(currentDayKey);
+                    if (currentDaySection) {
+                        currentDaySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }
+        }
 
         /**
          * Inicialización: Mostrar la semana actual al cargar la página
