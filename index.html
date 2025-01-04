@@ -6,78 +6,111 @@
     <title>Vista Semanal de Tareas</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Fuente personalizada -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <!-- Estilos CSS Personalizados -->
     <style>
         :root {
+            /* Paleta de Colores */
             --color-upcoming: #28a745;
             --color-due-today: #ffc107;
             --color-expired: #dc3545;
-            --color-background: #f8f9fa;
-            --color-card-background: #ffffff;
+            --color-background: #121212;
+            --color-card-background: #1e1e1e;
             --color-notification-success: #28a745;
             --color-notification-error: #dc3545;
-            --color-text-dark: #343a40;
-            --color-text-light: #ffffff;
-            --header-bg: #343a40;
-            --header-text: #ffffff;
-            --current-day-bg: #0d6efd; /* Color para resaltar el día actual */
+            --color-text-dark: #ffffff;
+            --color-text-light: #f0f0f0;
+            --header-bg: #1f1f1f;
+            --header-text: #f0f0f0;
+            --current-day-bg: #6f42c1;
             --current-day-text: #ffffff;
-            /* Nueva variable para animación holográfica */
+            --btn-primary-bg: #6f42c1;
+            --btn-primary-hover: #5a3791;
+            --btn-secondary-bg: #343a40;
+            --btn-secondary-hover: #23272b;
             --reminder-animation: glow 2s infinite;
+
+            /* Tipografía */
+            --font-primary: 'Roboto', sans-serif;
+            --font-size-base: 1rem;
+            --font-size-large: 1.2rem;
+            --font-size-small: 0.9rem;
         }
 
+        /* Aplicación de la Fuente Personalizada */
         body {
             background-color: var(--color-background);
+            color: var(--color-text-light);
             padding-top: 20px;
+            font-family: var(--font-primary);
+            font-size: var(--font-size-base);
         }
 
+        .container {
+            max-width: 1200px;
+        }
+
+        /* Estilos de las Secciones de los Días */
         .day-section {
             background-color: var(--color-card-background);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
 
         .day-section:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
         }
 
         .day-header {
             background-color: var(--header-bg);
             color: var(--header-text);
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             text-align: center;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: var(--font-size-large);
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: background-color 0.3s;
         }
 
-        /* Estilo para resaltar el día actual */
+        /* Resaltar el Día Actual */
         .day-header.current-day {
             background-color: var(--current-day-bg);
             color: var(--current-day-text);
+            animation: pulse 2s infinite;
         }
 
         .tasks-container {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 15px;
         }
 
+        /* Estilos de las Tarjetas de Tareas */
         .task-card {
             cursor: pointer;
             border-left: 5px solid;
             background-color: var(--color-card-background);
-            transition: background-color 0.3s, border-left-color 0.3s;
-            width: 100%;
-            max-width: 300px;
+            transition: background-color 0.3s, border-left-color 0.3s, transform 0.2s;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .task-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .task-card.upcoming {
@@ -92,44 +125,51 @@
             border-left-color: var(--color-expired);
         }
 
-        /* Nueva clase para recordatorios con animación holográfica */
+        /* Clase para Recordatorios con Animación */
         .task-card.reminder {
-            border-left-color: #6f42c1; /* Color distintivo para recordatorios */
+            border-left-color: #6f42c1;
             animation: var(--reminder-animation);
         }
 
         .task-card.reminder .card-body {
-            background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+            background: linear-gradient(135deg, #6f42c1, #8e44ad);
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(111, 66, 193, 0.7);
+            box-shadow: 0 0 15px rgba(111, 66, 193, 0.7);
         }
 
+        /* Animaciones */
         @keyframes glow {
             0% {
-                box-shadow: 0 0 5px rgba(111, 66, 193, 0.5);
+                box-shadow: 0 0 10px rgba(111, 66, 193, 0.5);
             }
             50% {
-                box-shadow: 0 0 20px rgba(111, 66, 193, 1);
+                box-shadow: 0 0 25px rgba(111, 66, 193, 1);
             }
             100% {
-                box-shadow: 0 0 5px rgba(111, 66, 193, 0.5);
+                box-shadow: 0 0 10px rgba(111, 66, 193, 0.5);
             }
         }
 
-        .task-card .card-body {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .task-card .card-title {
             font-size: 1.1rem;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            color: var(--color-text-light);
         }
 
         .task-card .card-text {
-            margin-top: auto;
             font-weight: bold;
+            color: var(--color-text-light);
         }
 
         /* Spinner Overlay */
@@ -139,12 +179,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(18, 18, 18, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1051; /* Superior a Bootstrap modals (z-index: 1050) */
-            display: none; /* Oculto por defecto */
+            z-index: 1051;
+            display: none;
         }
 
         /* Notificación */
@@ -158,6 +198,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             opacity: 0;
+            transform: translateY(-20px);
             transition: opacity 0.5s ease, transform 0.3s ease;
             z-index: 2000;
             font-size: 1rem;
@@ -181,35 +222,150 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
+        }
+
+        .week-navigation .btn {
+            min-width: 150px;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .week-navigation .btn:hover {
+            transform: translateY(-2px);
         }
 
         .week-range {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            margin: 0 15px;
+            color: var(--color-text-light);
         }
 
-        /* Responsividad para días de la semana */
+        /* Responsividad para Días de la Semana */
         @media (min-width: 576px) {
             .days-grid {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
+                gap: 20px;
             }
         }
 
         @media (min-width: 992px) {
             .days-grid {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(3, 1fr);
+                gap: 25px;
             }
         }
 
         @media (min-width: 1200px) {
             .days-grid {
-                grid-template-columns: repeat(7, 1fr);
+                grid-template-columns: repeat(4, 1fr);
+                gap: 30px;
+            }
+        }
+
+        /* Botones Modernos */
+        .btn-primary {
+            background-color: var(--btn-primary-bg);
+            border-color: var(--btn-primary-bg);
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--btn-primary-hover);
+            border-color: var(--btn-primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--btn-secondary-bg);
+            border-color: var(--btn-secondary-bg);
+            font-weight: bold;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--btn-secondary-hover);
+            border-color: var(--btn-secondary-hover);
+        }
+
+        /* Mejora de la Tipografía en Modales */
+        .modal-content {
+            background-color: var(--color-card-background);
+            color: var(--color-text-light);
+            font-family: var(--font-primary);
+        }
+
+        .modal-body {
+            font-size: 1rem;
+        }
+
+        /* Ajustes para Dispositivos Móviles */
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+
+            .week-navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .week-navigation .btn {
+                width: 100%;
+            }
+
+            .week-range {
+                font-size: 1.1rem;
+            }
+
+            .day-section {
+                padding: 15px;
+            }
+
+            .day-header {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+
+            .task-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+            }
+
+            .task-card .card-title {
+                font-size: 1rem;
+            }
+
+            .task-card .card-text {
+                font-size: 0.9rem;
+            }
+
+            .modal-content {
+                padding: 15px;
+            }
+
+            .modal-body {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Optimizaciones para Tablets */
+        @media (min-width: 577px) and (max-width: 768px) {
+            .days-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .day-header {
+                font-size: 1.1rem;
+            }
+
+            .modal-dialog {
+                max-width: 90%;
             }
         }
     </style>
@@ -217,10 +373,10 @@
 <body>
 
     <div class="container">
-        <h1 class="text-center mb-4">Vista Semanal de Tareas</h1>
+        <h1 class="text-center mb-5">Vista Semanal de Tareas</h1>
         
         <!-- Navegación de Semanas -->
-        <div class="week-navigation mb-4">
+        <div class="week-navigation mb-5">
             <button class="btn btn-secondary" id="prevWeekBtn" aria-label="Semana Anterior">← Semana Anterior</button>
             <div class="week-range" id="weekRange">Semana: --/--/---- - --/--/----</div>
             <button class="btn btn-secondary" id="nextWeekBtn" aria-label="Semana Siguiente">Semana Siguiente →</button>
@@ -286,7 +442,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="taskModalLabel">Detalles de la Tarea</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
           <div class="modal-body">
             <img id="modalImage" class="img-fluid mb-3" src="" alt="Imagen de la Tarea" style="display: none;" loading="lazy">
@@ -459,7 +615,7 @@
          */
         function createTaskCard(task) {
             const card = document.createElement('div');
-            card.classList.add('card', 'task-card', 'h-100'); // h-100 para igualar alturas
+            card.classList.add('task-card');
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
             card.setAttribute('aria-label', `Tarea: ${task.nombre}`);
@@ -479,37 +635,34 @@
             }
 
             // Contenido de la tarea
-            const cardBody = document.createElement('div');
-            cardBody.classList.add('card-body', 'd-flex', 'flex-column');
+            const title = document.createElement('span');
+            title.classList.add('card-title');
+            title.textContent = task.nombre;
 
-            const cardTitle = document.createElement('h5');
-            cardTitle.classList.add('card-title');
-            cardTitle.textContent = task.nombre;
-            cardBody.appendChild(cardTitle);
+            const status = document.createElement('span');
+            status.classList.add('card-text');
 
-            // Si es un recordatorio, agregar una etiqueta
+            if (daysLeft > 0) {
+                status.innerHTML = `<strong>Faltan:</strong> ${daysLeft} día${daysLeft !== 1 ? 's' : ''}.`;
+                status.style.color = 'var(--color-upcoming)';
+            } else if (daysLeft === 0) {
+                status.innerHTML = `<strong>Hoy es el día de vencimiento.</strong>`;
+                status.style.color = 'var(--color-due-today)';
+            } else {
+                status.innerHTML = `<strong>Vencida:</strong> Hace ${Math.abs(daysLeft)} día${Math.abs(daysLeft) !== 1 ? 's' : ''}.`;
+                status.style.color = 'var(--color-expired)';
+            }
+
+            // Agregar etiqueta de recordatorio si aplica
             if (task.isReminder) {
                 const reminderBadge = document.createElement('span');
-                reminderBadge.classList.add('badge', 'bg-info', 'mb-2');
+                reminderBadge.classList.add('badge', 'bg-info', 'me-2');
                 reminderBadge.textContent = 'Recordatorio';
-                cardBody.appendChild(reminderBadge);
+                card.appendChild(reminderBadge);
             }
 
-            const cardStatus = document.createElement('p');
-            cardStatus.classList.add('card-text', 'mt-auto'); // mt-auto para empujar al final
-            if (daysLeft > 0) {
-                cardStatus.innerHTML = `<strong>Faltan:</strong> ${daysLeft} día${daysLeft !== 1 ? 's' : ''}.`;
-                cardStatus.style.color = 'var(--color-upcoming)'; // Verde para tareas pendientes
-            } else if (daysLeft === 0) {
-                cardStatus.innerHTML = `<strong>Hoy es el día de vencimiento.</strong>`;
-                cardStatus.style.color = 'var(--color-due-today)'; // Amarillo para tareas que vencen hoy
-            } else {
-                cardStatus.innerHTML = `<strong>Vencida:</strong> Hace ${Math.abs(daysLeft)} día${Math.abs(daysLeft) !== 1 ? 's' : ''}.`;
-                cardStatus.style.color = 'var(--color-expired)'; // Rojo para tareas vencidas
-            }
-
-            cardBody.appendChild(cardStatus);
-            card.appendChild(cardBody);
+            card.appendChild(title);
+            card.appendChild(status);
 
             // Evento para abrir el modal al hacer clic en la tarjeta
             card.addEventListener('click', () => {
@@ -686,14 +839,18 @@
                         break;
                 }
 
-                if (dayKey) {
+                if (dayKey && taskDate >= weekRangeObj.monday && taskDate <= weekRangeObj.sunday) {
                     grouped[dayKey].push(task);
                 }
 
                 // Agregar recordatorio al día actual si la tarea vence en 5 días o menos y estamos en la semana actual
                 if (isCurrentWeek && daysLeft >= 0 && daysLeft <= 5) {
                     if (currentDayKey) {
-                        grouped[currentDayKey].push({...task, isReminder: true});
+                        // Verifica si el recordatorio ya existe para evitar duplicados
+                        const existingReminder = grouped[currentDayKey].find(t => t.isReminder && t.nombre === task.nombre);
+                        if (!existingReminder) {
+                            grouped[currentDayKey].push({...task, isReminder: true});
+                        }
                     }
                 }
             });
